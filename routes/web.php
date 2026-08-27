@@ -28,6 +28,14 @@ Route::middleware(['auth', 'role:staff'])->group(function () {
         Route::get('/{card}/edit', [\App\Http\Controllers\CardController::class, 'edit'])->name('edit');
         Route::put('/{card}', [\App\Http\Controllers\CardController::class, 'update'])->name('update');
         Route::delete('/{card}', [\App\Http\Controllers\CardController::class, 'destroy'])->name('destroy');
+
+        Route::prefix('{card}/au-adds')->name('auAdds.')->group(function () {
+            Route::get('/create', [\App\Http\Controllers\AuAddController::class, 'create'])->name('create');
+            Route::post('/', [\App\Http\Controllers\AuAddController::class, 'store'])->name('store');
+            Route::get('/{auAdd}/edit', [\App\Http\Controllers\AuAddController::class, 'edit'])->name('edit');
+            Route::put('/{auAdd}', [\App\Http\Controllers\AuAddController::class, 'update'])->name('update');
+            Route::delete('/{auAdd}', [\App\Http\Controllers\AuAddController::class, 'destroy'])->name('destroy');
+        });
     });
 });
 

@@ -38,7 +38,7 @@ class SupplierController extends Controller
 
     public function show(Supplier $supplier): View
     {
-        $supplier->load(['cards', 'applications']);
+                $supplier->load(['cards.auAdds', 'applications']);
 
         return view('suppliers.show', compact('supplier'));
     }

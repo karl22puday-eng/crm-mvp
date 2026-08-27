@@ -22,7 +22,7 @@
                 </dl>
             </div>
 
-                        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="font-semibold">Cards ({{ $supplier->cards->count() }})</h3>
                     <a href="{{ route('suppliers.cards.create', $supplier) }}" class="text-sm text-indigo-600 hover:underline">
@@ -31,12 +31,28 @@
                 </div>
 
                 @forelse ($supplier->cards as $card)
-                    <div class="flex justify-between items-center py-2 border-t first:border-t-0">
-                        <div>
-                            <span class="font-medium">{{ $card->issuer_name }}</span>
-                            <span class="text-gray-500 text-sm">— {{ $card->card_code }} — {{ ucfirst($card->status) }}</span>
+                    <div class="py-3 border-t first:border-t-0">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="font-medium">{{ $card->issuer_name }}</span>
+                                <span class="text-gray-500 text-sm">— {{ $card->card_code }} — {{ ucfirst($card->status) }}</span>
+                            </div>
+                            <div class="space-x-3">
+                                <a href="{{ route('suppliers.cards.auAdds.create', [$supplier, $card]) }}" class="text-sm text-indigo-600 hover:underline">+ Add Spot</a>
+                                <a href="{{ route('suppliers.cards.edit', [$supplier, $card]) }}" class="text-sm text-gray-500 hover:underline">Edit</a>
+                            </div>
                         </div>
-                        <a href="{{ route('suppliers.cards.edit', [$supplier, $card]) }}" class="text-sm text-gray-500 hover:underline">Edit</a>
+
+                        @if ($card->auAdds->count())
+                            <div class="mt-2 pl-4 space-y-1">
+                                @foreach ($card->auAdds as $auAdd)
+                                    <div class="flex justify-between items-center text-sm">
+                                        <span>{{ $auAdd->client_name }} — {{ ucfirst($auAdd->payout_status) }}</span>
+                                        <a href="{{ route('suppliers.cards.auAdds.edit', [$supplier, $card, $auAdd]) }}" class="text-gray-500 hover:underline">Edit</a>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
                     </div>
                 @empty
                     <p class="text-sm text-gray-500">No cards yet.</p>

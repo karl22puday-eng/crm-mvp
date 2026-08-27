@@ -26,6 +26,8 @@ class CardController extends Controller
             'slots_total' => 'nullable|integer|min:0',
             'pay_per_spot' => 'nullable|numeric|min:0',
             'status' => 'required|in:onboarding,active,closed',
+                        'bureaus_reported' => 'nullable|string|max:255',
+            'new_credit_limit' => 'nullable|numeric|min:0',
             'notes' => 'nullable|string',
         ]);
 

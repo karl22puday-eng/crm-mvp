@@ -19,6 +19,19 @@ class AuAdd extends Model
         'source', 'minimum_met', 'rate', 'payout_status', 'payout_amount', 'paid', 'notes',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'date_added' => 'date',
+            'date_checked' => 'date',
+            'experian_showing' => 'boolean',
+            'equifax_showing' => 'boolean',
+            'transunion_showing' => 'boolean',
+            'minimum_met' => 'boolean',
+            'paid' => 'boolean',
+        ];
+    }
+
     public function card(): BelongsTo
     {
         return $this->belongsTo(Card::class);

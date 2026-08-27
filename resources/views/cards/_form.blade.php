@@ -90,3 +90,18 @@
     <textarea id="notes" name="notes" rows="3" class="block mt-1 w-full border-gray-300 rounded-md shadow-sm">{{ old('notes', $card->notes ?? '') }}</textarea>
     <x-input-error :messages="$errors->get('notes')" class="mt-2" />
 </div>
+
+<div class="mt-4 grid grid-cols-2 gap-4">
+    <div>
+        <x-input-label for="bureaus_reported" value="Bureaus This Card Reports To" />
+        <x-text-input id="bureaus_reported" name="bureaus_reported" type="text" class="block mt-1 w-full"
+                      placeholder="e.g. EX, EQ, TU" value="{{ old('bureaus_reported', $card->bureaus_reported ?? '') }}" />
+        <x-input-error :messages="$errors->get('bureaus_reported')" class="mt-2" />
+    </div>
+    <div>
+        <x-input-label for="new_credit_limit" value="New Limit (if changed)" />
+        <x-text-input id="new_credit_limit" name="new_credit_limit" type="number" step="0.01" class="block mt-1 w-full"
+                      value="{{ old('new_credit_limit', $card->new_credit_limit ?? '') }}" />
+        <x-input-error :messages="$errors->get('new_credit_limit')" class="mt-2" />
+    </div>
+</div>
