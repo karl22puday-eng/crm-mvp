@@ -170,4 +170,49 @@ class ApprovalEngine
 
         return $governed;
     }
+        /**
+     * Runs all entered metrics for an application, saves every lane result to
+     * approval_calculations, and returns the governing constraint summary.
+     */
+    public function calculateForApplication(\App\Models\CrmApplication $application): array
+    {
+        $profile = $application->financialProfile;
+
+        if (! $profile) {
+            throw new \RuntimeException('Application has no financial profile to calculate from.');
+        }
+
+        $results = [];
+
+        if (! is_null($profile->annual_revenue)) {
+            $results['revenue'] = $this->fromRevenue((float) $profile->annual_revenue);
+        }
+        if (! is_null($profile->annual_net_profit)) {
+            $results['net_profit'] = $this->fromProfit((float) $profile->annual_net_profit);
+        }
+        if (! is_null($profile->avg_monthly_deposits)) {
+            $results['deposits'] = $this->fromDeposits((float) $profile->avg_monthly_deposits);
+        }
+
+        if (empty($results)) {
+            throw new \RuntimeException('Financial profile has no metrics entered.');
+        }
+
+        // Clear any previous calculations for this application before writing fresh ones
+        $application->approvalCalculations()->delete();
+
+        foreach ($results as $metric => $result) {
+            foreach ($result['lanes'] as $lane => $laneResult) {
+                $application->approvalCalculations()->create([
+                    'lane' => $lane,
+                    'source_metric' => $metric,
+                    'amount' => $laneResult['amount'],
+                    'flag' => $laneResult['flag'],
+                    'ran_at' => now(),
+                ]);
+            }
+        }
+
+        return $this->governingConstraint($results);
+    }
 }
