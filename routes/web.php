@@ -20,7 +20,7 @@ Route::middleware('auth')->group(function () {
 
 // Staff-only routes go here
 Route::middleware(['auth', 'role:staff'])->group(function () {
-    //
+    Route::resource('suppliers', \App\Http\Controllers\SupplierController::class);
 });
 
 // Supplier-only routes go here

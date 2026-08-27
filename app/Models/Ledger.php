@@ -6,13 +6,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Dispute extends Model
+class Ledger extends Model
 {
     use HasFactory;
 
+    protected $table = 'ledger';
+
     protected $fillable = [
-        'supplier_id', 'dispute_ref', 'date_filed', 'dispute_type', 'subject_ref',
-        'my_claim', 'my_evidence', 'status', 'resolved_date', 'our_answer',
+        'supplier_id', 'item_ref', 'entry_date', 'description', 'type',
+        'direction', 'amount', 'agreed', 'settled_date', 'raised_by', 'settlement_ref',
     ];
 
     public function supplier(): BelongsTo
