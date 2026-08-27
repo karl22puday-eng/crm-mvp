@@ -33,6 +33,15 @@ class Card extends Model
         'notes',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'opened_date' => 'date',
+            'balance_date' => 'date',
+            'still_open' => 'boolean',
+        ];
+    }
+
     public function supplier(): BelongsTo
     {
         return $this->belongsTo(Supplier::class);

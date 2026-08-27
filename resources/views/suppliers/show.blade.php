@@ -22,9 +22,25 @@
                 </dl>
             </div>
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                <h3 class="font-semibold mb-2">Cards ({{ $supplier->cards->count() }})</h3>
-                <p class="text-sm text-gray-500">Card list coming in the next step.</p>
+                        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-semibold">Cards ({{ $supplier->cards->count() }})</h3>
+                    <a href="{{ route('suppliers.cards.create', $supplier) }}" class="text-sm text-indigo-600 hover:underline">
+                        + Add Card
+                    </a>
+                </div>
+
+                @forelse ($supplier->cards as $card)
+                    <div class="flex justify-between items-center py-2 border-t first:border-t-0">
+                        <div>
+                            <span class="font-medium">{{ $card->issuer_name }}</span>
+                            <span class="text-gray-500 text-sm">— {{ $card->card_code }} — {{ ucfirst($card->status) }}</span>
+                        </div>
+                        <a href="{{ route('suppliers.cards.edit', [$supplier, $card]) }}" class="text-sm text-gray-500 hover:underline">Edit</a>
+                    </div>
+                @empty
+                    <p class="text-sm text-gray-500">No cards yet.</p>
+                @endforelse
             </div>
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">

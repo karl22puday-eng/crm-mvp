@@ -21,6 +21,14 @@ Route::middleware('auth')->group(function () {
 // Staff-only routes go here
 Route::middleware(['auth', 'role:staff'])->group(function () {
     Route::resource('suppliers', \App\Http\Controllers\SupplierController::class);
+
+    Route::prefix('suppliers/{supplier}/cards')->name('suppliers.cards.')->group(function () {
+        Route::get('/create', [\App\Http\Controllers\CardController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\CardController::class, 'store'])->name('store');
+        Route::get('/{card}/edit', [\App\Http\Controllers\CardController::class, 'edit'])->name('edit');
+        Route::put('/{card}', [\App\Http\Controllers\CardController::class, 'update'])->name('update');
+        Route::delete('/{card}', [\App\Http\Controllers\CardController::class, 'destroy'])->name('destroy');
+    });
 });
 
 // Supplier-only routes go here
