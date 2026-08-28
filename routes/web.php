@@ -56,7 +56,9 @@ Route::middleware(['auth', 'role:staff'])->group(function () {
 
 // Supplier-only routes go here
 Route::middleware(['auth', 'role:supplier'])->group(function () {
-    //
+    Route::get('/my-spots', [\App\Http\Controllers\SupplierPortalController::class, 'spots'])->name('portal.spots');
+Route::get('/my-cards', [\App\Http\Controllers\SupplierPortalController::class, 'cards'])->name('portal.cards');
+Route::get('/my-payments', [\App\Http\Controllers\SupplierPortalController::class, 'payments'])->name('portal.payments');
 });
 
 require __DIR__.'/auth.php';
