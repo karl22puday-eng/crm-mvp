@@ -15,6 +15,11 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+                        @if (auth()->user()->role === 'staff')
+        <x-nav-link :href="route('suppliers.index')" :active="request()->routeIs('suppliers.*')">
+            {{ __('Suppliers') }}
+        </x-nav-link>
+    @endif
                 </div>
             </div>
 
@@ -70,6 +75,11 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+                @if (auth()->user()->role === 'staff')
+        <x-responsive-nav-link :href="route('suppliers.index')" :active="request()->routeIs('suppliers.*')">
+            {{ __('Suppliers') }}
+        </x-responsive-nav-link>
+    @endif
         </div>
 
         <!-- Responsive Settings Options -->

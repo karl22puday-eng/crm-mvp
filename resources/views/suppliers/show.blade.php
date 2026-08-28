@@ -58,6 +58,26 @@
                     <p class="text-sm text-gray-500">No cards yet.</p>
                 @endforelse
             </div>
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-semibold">Payments ({{ $supplier->payments->count() }})</h3>
+                    <a href="{{ route('suppliers.payments.create', $supplier) }}" class="text-sm text-indigo-600 hover:underline">
+                        + Record Payment
+                    </a>
+                </div>
+
+                @forelse ($supplier->payments as $payment)
+                    <div class="flex justify-between items-center py-2 border-t first:border-t-0">
+                        <div>
+                            <span class="font-medium">${{ number_format($payment->amount, 2) }}</span>
+                            <span class="text-gray-500 text-sm">— {{ $payment->payment_date?->format('M j, Y') }} — {{ $payment->confirmed ? 'Confirmed' : 'Unconfirmed' }}</span>
+                        </div>
+                        <a href="{{ route('suppliers.payments.edit', [$supplier, $payment]) }}" class="text-sm text-gray-500 hover:underline">Edit</a>
+                    </div>
+                @empty
+                    <p class="text-sm text-gray-500">No payments yet.</p>
+                @endforelse
+            </div>
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                 <h3 class="font-semibold mb-2">Applications ({{ $supplier->applications->count() }})</h3>
