@@ -45,7 +45,15 @@ Route::middleware(['auth', 'role:staff'])->group(function () {
         Route::put('/{payment}', [\App\Http\Controllers\PaymentController::class, 'update'])->name('update');
         Route::delete('/{payment}', [\App\Http\Controllers\PaymentController::class, 'destroy'])->name('destroy');
     });
+
+    Route::prefix('suppliers/{supplier}/applications')->name('suppliers.applications.')->group(function () {
+        Route::get('/create', [\App\Http\Controllers\ApplicationController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\ApplicationController::class, 'store'])->name('store');
+        Route::get('/{application}', [\App\Http\Controllers\ApplicationController::class, 'show'])->name('show');
+        Route::post('/{application}/calculate', [\App\Http\Controllers\ApplicationController::class, 'calculate'])->name('calculate');
+    });
 });
+
 // Supplier-only routes go here
 Route::middleware(['auth', 'role:supplier'])->group(function () {
     //

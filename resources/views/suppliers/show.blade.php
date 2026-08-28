@@ -79,9 +79,22 @@
                 @endforelse
             </div>
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                <h3 class="font-semibold mb-2">Applications ({{ $supplier->applications->count() }})</h3>
-                <p class="text-sm text-gray-500">Application list coming in the next step.</p>
+                        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-semibold">Applications ({{ $supplier->applications->count() }})</h3>
+                    <a href="{{ route('suppliers.applications.create', $supplier) }}" class="text-sm text-indigo-600 hover:underline">
+                        + New Application
+                    </a>
+                </div>
+
+                @forelse ($supplier->applications as $application)
+                    <div class="flex justify-between items-center py-2 border-t first:border-t-0">
+                        <span>Application #{{ $application->id }} — {{ ucfirst($application->status) }}</span>
+                        <a href="{{ route('suppliers.applications.show', [$supplier, $application]) }}" class="text-sm text-gray-500 hover:underline">View</a>
+                    </div>
+                @empty
+                    <p class="text-sm text-gray-500">No applications yet.</p>
+                @endforelse
             </div>
         </div>
     </div>
