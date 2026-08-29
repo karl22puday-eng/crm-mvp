@@ -49,4 +49,12 @@ class SupplierPortalController extends Controller
 
         return view('portal.payments', ['payments' => $supplier->payments]);
     }
+
+    public function ledger(Request $request): View
+    {
+        $supplier = $this->supplierOrAbort($request);
+        $supplier->load('ledgerEntries');
+
+        return view('portal.ledger', ['entries' => $supplier->ledgerEntries]);
+    }
 }

@@ -15,11 +15,24 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
-                        @if (auth()->user()->role === 'staff')
-        <x-nav-link :href="route('suppliers.index')" :active="request()->routeIs('suppliers.*')">
-            {{ __('Suppliers') }}
-        </x-nav-link>
-    @endif
+                    @if (auth()->user()->role === 'staff')
+                        <x-nav-link :href="route('suppliers.index')" :active="request()->routeIs('suppliers.*')">
+                            {{ __('Suppliers') }}
+                        </x-nav-link>
+                    @else
+                        <x-nav-link :href="route('portal.spots')" :active="request()->routeIs('portal.spots')">
+                            {{ __('My Spots') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('portal.cards')" :active="request()->routeIs('portal.cards')">
+                            {{ __('My Cards') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('portal.payments')" :active="request()->routeIs('portal.payments')">
+                            {{ __('My Payments') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('portal.ledger')" :active="request()->routeIs('portal.ledger')">
+                            {{ __('Our Account') }}
+                        </x-nav-link>
+                    @endif
                 </div>
             </div>
 
@@ -75,11 +88,24 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
-                @if (auth()->user()->role === 'staff')
-        <x-responsive-nav-link :href="route('suppliers.index')" :active="request()->routeIs('suppliers.*')">
-            {{ __('Suppliers') }}
-        </x-responsive-nav-link>
-    @endif
+            @if (auth()->user()->role === 'staff')
+                <x-responsive-nav-link :href="route('suppliers.index')" :active="request()->routeIs('suppliers.*')">
+                    {{ __('Suppliers') }}
+                </x-responsive-nav-link>
+            @else
+                <x-responsive-nav-link :href="route('portal.spots')" :active="request()->routeIs('portal.spots')">
+                    {{ __('My Spots') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('portal.cards')" :active="request()->routeIs('portal.cards')">
+                    {{ __('My Cards') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('portal.payments')" :active="request()->routeIs('portal.payments')">
+                    {{ __('My Payments') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('portal.ledger')" :active="request()->routeIs('portal.ledger')">
+                    {{ __('Our Account') }}
+                </x-responsive-nav-link>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->

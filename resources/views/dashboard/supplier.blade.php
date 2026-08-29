@@ -55,11 +55,14 @@
                         </div>
                     </div>
                 </div>
-<div class="flex gap-4 text-sm">
-    <a href="{{ route('portal.spots') }}" class="text-indigo-600 hover:underline">My Spots →</a>
-    <a href="{{ route('portal.cards') }}" class="text-indigo-600 hover:underline">My Cards →</a>
-    <a href="{{ route('portal.payments') }}" class="text-indigo-600 hover:underline">My Payments →</a>
-</div>
+
+                <div class="flex gap-4 text-sm">
+                    <a href="{{ route('portal.spots') }}" class="text-indigo-600 hover:underline">My Spots →</a>
+                    <a href="{{ route('portal.cards') }}" class="text-indigo-600 hover:underline">My Cards →</a>
+                    <a href="{{ route('portal.payments') }}" class="text-indigo-600 hover:underline">My Payments →</a>
+                    <a href="{{ route('portal.ledger') }}" class="text-indigo-600 hover:underline">Our Account →</a>
+                </div>
+
                 {{-- MY MONEY · STEP 1 --}}
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                     <h3 class="font-semibold mb-4">Your Money Right Now</h3>

@@ -67,6 +67,7 @@ Route::middleware(['auth', 'role:supplier'])->group(function () {
     Route::get('/my-spots', [\App\Http\Controllers\SupplierPortalController::class, 'spots'])->name('portal.spots');
     Route::get('/my-cards', [\App\Http\Controllers\SupplierPortalController::class, 'cards'])->name('portal.cards');
     Route::get('/my-payments', [\App\Http\Controllers\SupplierPortalController::class, 'payments'])->name('portal.payments');
+    Route::get('/my-account', [\App\Http\Controllers\SupplierPortalController::class, 'ledger'])->name('portal.ledger');
 });
 
 require __DIR__.'/auth.php';
