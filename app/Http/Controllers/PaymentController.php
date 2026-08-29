@@ -38,7 +38,7 @@ class PaymentController extends Controller
 
     public function update(Request $request, Supplier $supplier, Payment $payment): RedirectResponse
     {
-        $validated = $request->validate([
+                $validated = $request->validate([
             'payment_ref' => 'required|string|max:255|unique:payments,payment_ref,'.$payment->id,
             'payment_date' => 'required|date',
             'amount' => 'required|numeric|min:0',
