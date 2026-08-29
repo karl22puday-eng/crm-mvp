@@ -58,6 +58,7 @@
                     <p class="text-sm text-gray-500">No cards yet.</p>
                 @endforelse
             </div>
+
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="font-semibold">Payments ({{ $supplier->payments->count() }})</h3>
@@ -79,7 +80,7 @@
                 @endforelse
             </div>
 
-                        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="font-semibold">Applications ({{ $supplier->applications->count() }})</h3>
                     <a href="{{ route('suppliers.applications.create', $supplier) }}" class="text-sm text-indigo-600 hover:underline">
@@ -94,6 +95,31 @@
                     </div>
                 @empty
                     <p class="text-sm text-gray-500">No applications yet.</p>
+                @endforelse
+            </div>
+
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-semibold">Ledger ({{ $supplier->ledgerEntries->count() }})</h3>
+                    <a href="{{ route('suppliers.ledger.create', $supplier) }}" class="text-sm text-indigo-600 hover:underline">
+                        + Add Ledger Entry
+                    </a>
+                </div>
+
+                @forelse ($supplier->ledgerEntries as $entry)
+                    <div class="flex justify-between items-center py-2 border-t first:border-t-0">
+                        <div>
+                            <span class="font-medium">${{ number_format($entry->amount, 2) }}</span>
+                            <span class="text-gray-500 text-sm">
+                                — {{ $entry->direction === 'we_owe_you' ? 'We Owe You' : 'You Owe Us' }}
+                                — {{ $entry->description }}
+                                — {{ $entry->agreed ? 'Agreed' : 'Unagreed' }}
+                            </span>
+                        </div>
+                        <a href="{{ route('suppliers.ledger.edit', [$supplier, $entry]) }}" class="text-sm text-gray-500 hover:underline">Edit</a>
+                    </div>
+                @empty
+                    <p class="text-sm text-gray-500">No ledger entries yet.</p>
                 @endforelse
             </div>
         </div>

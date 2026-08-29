@@ -52,13 +52,21 @@ Route::middleware(['auth', 'role:staff'])->group(function () {
         Route::get('/{application}', [\App\Http\Controllers\ApplicationController::class, 'show'])->name('show');
         Route::post('/{application}/calculate', [\App\Http\Controllers\ApplicationController::class, 'calculate'])->name('calculate');
     });
+
+    Route::prefix('suppliers/{supplier}/ledger')->name('suppliers.ledger.')->group(function () {
+        Route::get('/create', [\App\Http\Controllers\LedgerController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\LedgerController::class, 'store'])->name('store');
+        Route::get('/{ledgerEntry}/edit', [\App\Http\Controllers\LedgerController::class, 'edit'])->name('edit');
+        Route::put('/{ledgerEntry}', [\App\Http\Controllers\LedgerController::class, 'update'])->name('update');
+        Route::delete('/{ledgerEntry}', [\App\Http\Controllers\LedgerController::class, 'destroy'])->name('destroy');
+    });
 });
 
 // Supplier-only routes go here
 Route::middleware(['auth', 'role:supplier'])->group(function () {
     Route::get('/my-spots', [\App\Http\Controllers\SupplierPortalController::class, 'spots'])->name('portal.spots');
-Route::get('/my-cards', [\App\Http\Controllers\SupplierPortalController::class, 'cards'])->name('portal.cards');
-Route::get('/my-payments', [\App\Http\Controllers\SupplierPortalController::class, 'payments'])->name('portal.payments');
+    Route::get('/my-cards', [\App\Http\Controllers\SupplierPortalController::class, 'cards'])->name('portal.cards');
+    Route::get('/my-payments', [\App\Http\Controllers\SupplierPortalController::class, 'payments'])->name('portal.payments');
 });
 
 require __DIR__.'/auth.php';

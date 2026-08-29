@@ -1,70 +1,126 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">Application — {{ $supplier->name }}</h2>
+        <div class="flex justify-between items-center">
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ $supplier->name }}</h2>
+            <a href="{{ route('suppliers.edit', $supplier) }}" class="text-sm text-indigo-600 hover:underline">Edit</a>
+        </div>
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-3xl mx-auto sm:px-6 lg:px-8 space-y-6">
+        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
             @if (session('status'))
                 <div class="p-4 bg-green-100 text-green-800 rounded-md">{{ session('status') }}</div>
             @endif
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                <h3 class="font-semibold mb-2">Financial Profile</h3>
-                <dl class="grid grid-cols-3 gap-4 text-sm">
-                    <div><dt class="text-gray-500">Revenue</dt><dd>{{ $application->financialProfile?->annual_revenue ? '$'.number_format($application->financialProfile->annual_revenue) : '—' }}</dd></div>
-                    <div><dt class="text-gray-500">Net Profit</dt><dd>{{ $application->financialProfile?->annual_net_profit ? '$'.number_format($application->financialProfile->annual_net_profit) : '—' }}</dd></div>
-                    <div><dt class="text-gray-500">Monthly Deposits</dt><dd>{{ $application->financialProfile?->avg_monthly_deposits ? '$'.number_format($application->financialProfile->avg_monthly_deposits) : '—' }}</dd></div>
+                <dl class="grid grid-cols-2 gap-4">
+                    <div><dt class="text-sm text-gray-500">Email</dt><dd>{{ $supplier->email ?? '—' }}</dd></div>
+                    <div><dt class="text-sm text-gray-500">Phone</dt><dd>{{ $supplier->phone ?? '—' }}</dd></div>
+                    <div><dt class="text-sm text-gray-500">Tier</dt><dd>{{ ucfirst(str_replace('_', ' ', $supplier->tier)) }}</dd></div>
+                    <div><dt class="text-sm text-gray-500">Posting Rate</dt><dd>{{ $supplier->posting_rate }}%</dd></div>
                 </dl>
             </div>
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-semibold">Approval Calculation</h3>
-                    <form method="POST" action="{{ route('suppliers.applications.calculate', [$supplier, $application]) }}">
-                        @csrf
-                        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm">
-                            {{ $application->approvalCalculations->count() ? 'Recalculate' : 'Run Calculation' }}
-                        </button>
-                    </form>
+                    <h3 class="font-semibold">Cards ({{ $supplier->cards->count() }})</h3>
+                    <a href="{{ route('suppliers.cards.create', $supplier) }}" class="text-sm text-indigo-600 hover:underline">
+                        + Add Card
+                    </a>
                 </div>
 
-                @if ($application->approvalCalculations->count())
-                    @php
-                        $lanes = $application->approvalCalculations->groupBy('lane');
-                        $laneLabels = [
-                            'fintech_term_loan' => 'Fintech Term Loan',
-                            'fintech_loc' => 'Fintech Line of Credit',
-                            'bank_term_loan' => 'Bank Term Loan',
-                            'bank_loc' => 'Bank Line of Credit',
-                        ];
-                    @endphp
+                @forelse ($supplier->cards as $card)
+                    <div class="py-3 border-t first:border-t-0">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="font-medium">{{ $card->issuer_name }}</span>
+                                <span class="text-gray-500 text-sm">— {{ $card->card_code }} — {{ ucfirst($card->status) }}</span>
+                            </div>
+                            <div class="space-x-3">
+                                <a href="{{ route('suppliers.cards.auAdds.create', [$supplier, $card]) }}" class="text-sm text-indigo-600 hover:underline">+ Add Spot</a>
+                                <a href="{{ route('suppliers.cards.edit', [$supplier, $card]) }}" class="text-sm text-gray-500 hover:underline">Edit</a>
+                            </div>
+                        </div>
 
-                    <table class="min-w-full text-sm">
-                        <thead>
-                            <tr class="text-left text-gray-500 border-b">
-                                <th class="py-2">Lane</th>
-                                <th class="py-2">Amount</th>
-                                <th class="py-2">Governed By</th>
-                                <th class="py-2">Flag</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($lanes as $lane => $calcs)
-                                @php $lowest = $calcs->sortBy('amount')->first(); @endphp
-                                <tr class="border-b">
-                                    <td class="py-2 font-medium">{{ $laneLabels[$lane] ?? $lane }}</td>
-                                    <td class="py-2">${{ number_format($lowest->amount) }}</td>
-                                    <td class="py-2 text-gray-500">{{ ucfirst(str_replace('_', ' ', $lowest->source_metric)) }}</td>
-                                    <td class="py-2 text-gray-500">{{ $lowest->flag ?? '—' }}</td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                @else
-                    <p class="text-sm text-gray-500">No calculation run yet. Click "Run Calculation" above.</p>
-                @endif
+                        @if ($card->auAdds->count())
+                            <div class="mt-2 pl-4 space-y-1">
+                                @foreach ($card->auAdds as $auAdd)
+                                    <div class="flex justify-between items-center text-sm">
+                                        <span>{{ $auAdd->client_name }} — {{ ucfirst($auAdd->payout_status) }}</span>
+                                        <a href="{{ route('suppliers.cards.auAdds.edit', [$supplier, $card, $auAdd]) }}" class="text-gray-500 hover:underline">Edit</a>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
+                @empty
+                    <p class="text-sm text-gray-500">No cards yet.</p>
+                @endforelse
+            </div>
+
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-semibold">Payments ({{ $supplier->payments->count() }})</h3>
+                    <a href="{{ route('suppliers.payments.create', $supplier) }}" class="text-sm text-indigo-600 hover:underline">
+                        + Record Payment
+                    </a>
+                </div>
+
+                @forelse ($supplier->payments as $payment)
+                    <div class="flex justify-between items-center py-2 border-t first:border-t-0">
+                        <div>
+                            <span class="font-medium">${{ number_format($payment->amount, 2) }}</span>
+                            <span class="text-gray-500 text-sm">— {{ $payment->payment_date?->format('M j, Y') }} — {{ $payment->confirmed ? 'Confirmed' : 'Unconfirmed' }}</span>
+                        </div>
+                        <a href="{{ route('suppliers.payments.edit', [$supplier, $payment]) }}" class="text-sm text-gray-500 hover:underline">Edit</a>
+                    </div>
+                @empty
+                    <p class="text-sm text-gray-500">No payments yet.</p>
+                @endforelse
+            </div>
+
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-semibold">Applications ({{ $supplier->applications->count() }})</h3>
+                    <a href="{{ route('suppliers.applications.create', $supplier) }}" class="text-sm text-indigo-600 hover:underline">
+                        + New Application
+                    </a>
+                </div>
+
+                @forelse ($supplier->applications as $application)
+                    <div class="flex justify-between items-center py-2 border-t first:border-t-0">
+                        <span>Application #{{ $application->id }} — {{ ucfirst($application->status) }}</span>
+                        <a href="{{ route('suppliers.applications.show', [$supplier, $application]) }}" class="text-sm text-gray-500 hover:underline">View</a>
+                    </div>
+                @empty
+                    <p class="text-sm text-gray-500">No applications yet.</p>
+                @endforelse
+            </div>
+
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-semibold">Ledger ({{ $supplier->ledgerEntries->count() }})</h3>
+                    <a href="{{ route('suppliers.ledger.create', $supplier) }}" class="text-sm text-indigo-600 hover:underline">
+                        + Add Ledger Entry
+                    </a>
+                </div>
+
+                @forelse ($supplier->ledgerEntries as $entry)
+                    <div class="flex justify-between items-center py-2 border-t first:border-t-0">
+                        <div>
+                            <span class="font-medium">${{ number_format($entry->amount, 2) }}</span>
+                            <span class="text-gray-500 text-sm">
+                                — {{ $entry->direction === 'we_owe_you' ? 'We Owe You' : 'You Owe Us' }}
+                                — {{ $entry->description }}
+                                — {{ $entry->agreed ? 'Agreed' : 'Unagreed' }}
+                            </span>
+                        </div>
+                        <a href="{{ route('suppliers.ledger.edit', [$supplier, $entry]) }}" class="text-sm text-gray-500 hover:underline">Edit</a>
+                    </div>
+                @empty
+                    <p class="text-sm text-gray-500">No ledger entries yet.</p>
+                @endforelse
             </div>
         </div>
     </div>

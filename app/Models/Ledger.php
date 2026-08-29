@@ -17,6 +17,15 @@ class Ledger extends Model
         'direction', 'amount', 'agreed', 'settled_date', 'raised_by', 'settlement_ref',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'entry_date' => 'date',
+            'settled_date' => 'date',
+            'agreed' => 'boolean',
+        ];
+    }
+
     public function supplier(): BelongsTo
     {
         return $this->belongsTo(Supplier::class);
