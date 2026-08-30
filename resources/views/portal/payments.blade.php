@@ -1,70 +1,44 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">My Payments</h2>
+        <h2 class="page-title">My Payments</h2>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
+    @php $needConfirming = $payments->whereNull('confirmed')->count(); @endphp
 
-            @php
-                $needConfirming = $payments->whereNull('confirmed')->count();
-            @endphp
+    <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 p-6 mb-6">
+        <p class="text-white font-medium">We have sent you {{ $payments->count() }} payment(s).</p>
+        <p class="text-indigo-100 text-sm mt-1">{{ $needConfirming }} still need a Yes or No from you.</p>
+    </div>
 
-            <div class="bg-indigo-600 text-white rounded-lg p-4 mb-6">
-                We have sent you {{ $payments->count() }} payment(s). {{ $needConfirming }} still need a Yes or No from you.
-            </div>
-
-            <div class="bg-white shadow-sm sm:rounded-lg overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200 text-sm whitespace-nowrap">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">#</th>
-                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Payment Date</th>
-                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
-                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Covers</th>
-                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Got It?</th>
-                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date I Got It</th>
-                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount Looks Wrong?</th>
-                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">My Comment</th>
-                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">What To Do Next</th>
-                            
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        @forelse ($payments as $i => $payment)
-                            @php
-                                $nextStep = is_null($payment->confirmed)
-                                    ? 'Tell us this payment arrived.'
-                                    : ($payment->confirmed ? 'Nothing needed — confirmed.' : 'Flagged as not received — we will follow up.');
-                            @endphp
-                            <tr>
-                                <td class="px-3 py-3 text-gray-400">{{ $i + 1 }}</td>
-                                <td class="px-3 py-3">{{ $payment->payment_date?->format('M j, Y') ?? '—' }}</td>
-                                <td class="px-3 py-3 font-medium">${{ number_format($payment->amount, 2) }}</td>
-                                <td class="px-3 py-3 text-gray-500">{{ $payment->covers ?? '—' }}</td>
-                                <td class="px-3 py-3">
-                                    @if (is_null($payment->confirmed))
-                                        <span class="text-amber-600">Needs answer</span>
-                                    @else
-                                        <span class="{{ $payment->confirmed ? 'text-green-600' : 'text-red-600' }}">
-                                            {{ $payment->confirmed ? 'Y' : 'N' }}
-                                        </span>
-                                    @endif
-                                </td>
-                                <td class="px-3 py-3">{{ $payment->confirmed_date?->format('M j, Y') ?? '—' }}</td>
-                                <td class="px-3 py-3">{{ $payment->amount_disputed ? 'Y' : 'N' }}</td>
-                                <td class="px-3 py-3 text-gray-500">{{ $payment->comment ?? '—' }}</td>
-                                <td class="px-3 py-3 text-gray-500">{{ $nextStep }}</td>
-                                
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="10" class="px-3 py-4 text-center text-gray-500">No payments yet.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+    <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+        <div class="divide-y divide-slate-100">
+            @forelse ($payments as $payment)
+                @php
+                    $nextStep = is_null($payment->confirmed)
+                        ? 'Tell us this payment arrived.'
+                        : ($payment->confirmed ? 'Nothing needed — confirmed.' : 'Flagged as not received.');
+                @endphp
+                <div class="flex items-center justify-between px-6 py-4">
+                    <div class="flex items-center gap-4">
+                        <div class="h-9 w-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" /></svg>
+                        </div>
+                        <div>
+                            <p class="font-medium text-slate-800">${{ number_format($payment->amount, 2) }}</p>
+                            <p class="text-xs text-slate-400">{{ $payment->payment_date?->format('M j, Y') ?? '—' }} · {{ $payment->covers ?? 'No note' }}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ring-1 ring-inset
+                            {{ is_null($payment->confirmed) ? 'bg-amber-50 text-amber-700 ring-amber-600/20' : ($payment->confirmed ? 'bg-emerald-50 text-emerald-700 ring-emerald-600/20' : 'bg-rose-50 text-rose-700 ring-rose-600/20') }}">
+                            {{ is_null($payment->confirmed) ? 'Needs answer' : ($payment->confirmed ? 'Confirmed' : 'Not received') }}
+                        </span>
+                        <p class="text-xs text-slate-400 mt-1">{{ $nextStep }}</p>
+                    </div>
+                </div>
+            @empty
+                <p class="px-6 py-10 text-center text-slate-500">No payments yet.</p>
+            @endforelse
         </div>
     </div>
 </x-app-layout>
