@@ -42,9 +42,14 @@ class DashboardController extends Controller
             $sideAccount = $supplier->ledgerEntries->where('direction', 'we_owe_you')->whereNull('settled_date')->sum('amount')
                 - $supplier->ledgerEntries->where('direction', 'you_owe_us')->whereNull('settled_date')->sum('amount');
 
-            $spotsNeedingCheck = $allSpots->where('minimum_met', false)->count();
-            $cardsNeedingConfirmation = $supplier->cards->whereNull('still_open')->count();
-            $paymentsNeedingConfirmation = $supplier->payments->whereNull('confirmed')->count();
+            // The actual items needing attention, not just counts
+            $spotsNeedingCheckList = $allSpots->where('minimum_met', false)->values();
+            $cardsNeedingConfirmationList = $supplier->cards->whereNull('still_open')->values();
+            $paymentsNeedingConfirmationList = $supplier->payments->whereNull('confirmed')->values();
+
+            $spotsNeedingCheck = $spotsNeedingCheckList->count();
+            $cardsNeedingConfirmation = $cardsNeedingConfirmationList->count();
+            $paymentsNeedingConfirmation = $paymentsNeedingConfirmationList->count();
 
             $totalJobs = $spotsNeedingCheck + $cardsNeedingConfirmation + $paymentsNeedingConfirmation;
 
@@ -65,7 +70,13 @@ class DashboardController extends Controller
                 'total_jobs' => $totalJobs,
             ];
 
-            return view('dashboard.supplier', compact('supplier', 'money', 'tasks'));
+            $taskItems = [
+                'spots' => $spotsNeedingCheckList,
+                'cards' => $cardsNeedingConfirmationList,
+                'payments' => $paymentsNeedingConfirmationList,
+            ];
+
+            return view('dashboard.supplier', compact('supplier', 'money', 'tasks', 'taskItems'));
         }
 
         return view('dashboard.staff');
