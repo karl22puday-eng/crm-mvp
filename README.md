@@ -1,58 +1,110 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Clearline — Supplier CRM & Financial Approval Engine
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A full-stack CRM built in Laravel that replaced two manual operational spreadsheets (a supplier/tradeline tracker and a standalone loan-approval calculator) with a single, role-based web application. Built end-to-end in 7 days as a self-directed challenge: requirements analysis, schema design, business-logic implementation, and UI, all done solo.
 
-## About Laravel
+**[Live Demo](#) · [Screenshots](#screenshots)**
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Why this project is relevant
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+This build maps closely onto the core of CRM development work:
 
-## Learning Laravel
+- **Translating business requirements into a technical solution** — the entire schema and business ruleset was reverse-engineered from real spreadsheets (including a documented 20-rule SOP and a multi-tab operational workbook), not built from a clean spec. That's the same skill required to turn a stakeholder's messy process into a working system.
+- **Client / lead / contact management** — the Supplier CRM here is structurally identical to client management: profiles, tiered status, related records (cards → the equivalent of contracts/assets), and full activity history.
+- **Task and activity tracking** — the "3 jobs to clear" system on the client-facing dashboard is a live, computed task list, not a static to-do — it's generated from real database state (unverified records, unconfirmed payments, etc.).
+- **Dashboards and reporting** — both a staff-facing operational dashboard and a client-facing portal dashboard, each pulling live aggregates (not hardcoded numbers).
+- **User accounts, roles, and permissions** — full role-based access control (staff vs. client), enforced at the route/middleware level, with each role seeing a completely different set of screens from the same codebase.
+- **A calculation engine that has to be right** — the financial approval engine reproduces real underwriting math (revenue, profit, and deposit-based loan sizing across multiple lending products) and was verified line-by-line against the source spreadsheet's own worked examples before being trusted in the app.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+---
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Feature overview
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+### Staff-side CRM
+- Supplier (client) management — full CRUD, tiered status (Preferred / Standard / Under Review)
+- Nested asset management (Cards → Spots), each with its own verification and payout state
+- Payment recording and confirmation workflow
+- Ledger for two-way balance tracking (amounts owed each direction)
+- Financial applications with a persisted calculation history (every run is saved, not just the latest result)
 
-## Agentic Development
+### Client-facing portal
+- Personalized dashboard: live count of outstanding tasks, money due, posting-rate tier — computed from the same data staff manage, not a separate copy
+- Read-only detail views (My Spots, My Cards, My Payments, Our Account) matching the exact operational columns clients need
+- Zero access to other clients' data — enforced by ownership checks, not just UI hiding
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+### Financial Approval Engine
+- Pure PHP service class reproducing a real underwriting model: revenue / profit / deposits → sized approval amounts across 4 lending lanes (bank/fintech × term loan/line of credit)
+- All 12 sizing parameters (multipliers, floors, caps) live in an admin-editable settings table — no hardcoded business rules
+- Every calculation persists a full audit trail: which metric governed the result, what flags applied (capped, sub-floor, etc.)
 
-```bash
-composer require laravel/boost --dev
+### Design
+- Custom design system (not a UI kit): icon-rail navigation, dark-glass content cards, bento-grid dashboards
+- Data visualized where it matters — live SVG sparkline on the staff dashboard, circular progress indicator for posting rate — built from real query results, not static images
 
-php artisan boost:install
+---
+
+## Tech stack and rationale
+
+| Layer | Choice | Why |
+|---|---|---|
+| Backend | Laravel 12 (PHP) | Mature ecosystem for exactly this shape of problem — auth, RBAC, Eloquent ORM, migrations — without reinventing infrastructure |
+| Database | MySQL | Relational integrity matters here (foreign keys, cascading deletes, unique constraints) — this data is inherently relational, not document-shaped |
+| Frontend | Blade + Tailwind CSS + Alpine.js | No SPA framework needed for a CRUD-heavy CRM; server-rendered views with light interactivity keep the codebase simple and fast to iterate on |
+| Auth | Laravel Breeze, extended with custom role middleware | Standard, auditable auth foundation rather than a custom-rolled system |
+
+For a client project I'd make this decision based on their actual needs — e.g. if heavy real-time collaboration or a mobile app were required, I'd bring in Inertia/Vue or a separate API + SPA frontend instead.
+
+---
+
+## Architecture
+
+```mermaid
+erDiagram
+    SUPPLIERS ||--o{ CARDS : owns
+    CARDS ||--o{ AU_ADDS : contains
+    SUPPLIERS ||--o{ PAYMENTS : receives
+    SUPPLIERS ||--o{ LEDGER : has
+    SUPPLIERS ||--o{ APPLICATIONS : submits
+    APPLICATIONS ||--|| FINANCIAL_PROFILES : has
+    APPLICATIONS ||--o{ APPROVAL_CALCULATIONS : generates
+    USERS ||--o| SUPPLIERS : "linked to (client role)"
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+- Role-based route groups (`role:staff`, `role:supplier`) enforced via custom middleware
+- Nested resource controllers mirroring the real object hierarchy (a Spot only exists within a Card, which only exists within a Supplier)
+- A dedicated `ApprovalEngine` service class, fully decoupled from HTTP/controller concerns — testable in isolation
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Screenshots
 
-## Code of Conduct
+*(Add screenshots or a short screen-recording GIF here — staff dashboard, client dashboard, and the approval engine results view are the strongest three to lead with.)*
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
+## Running it locally
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+composer install
+npm install && npm run build
+cp .env.example .env
+php artisan key:generate
+# Configure DB credentials in .env
+php artisan migrate --seed
+php artisan serve
+```
 
-## License
+---
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## What I'd do differently on a client engagement
+
+- Lock the data model against a written spec before writing any UI — mid-build schema changes here (adding entities discovered from a second reference document) were the most expensive rework of the whole project.
+- Add automated tests around the calculation engine specifically — it was manually verified against source data, but a client-facing financial calculator should have regression tests from day one.
+- Build the admin settings UI for business-rule parameters earlier, rather than leaving direct database edits as the only way to tune them.
+
+---
+
+## About this build
+
+Built solo in 7 days, from spreadsheet analysis through deployment. Happy to walk through any part of the codebase, the schema decisions, or the approval-engine verification process in more detail.
