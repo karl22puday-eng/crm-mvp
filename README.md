@@ -2,7 +2,7 @@
 
 A full-stack CRM built in Laravel that replaced two manual operational spreadsheets (a supplier/tradeline tracker and a standalone loan-approval calculator) with a single, role-based web application. Built end-to-end in 7 days as a self-directed challenge: requirements analysis, schema design, business-logic implementation, and UI, all done solo.
 
-**[Live Demo](https://crm-mvp-production-26f1.up.railway.app/) · [Screenshots](#screenshots)**
+**[Live Demo](https://crm-mvp-production-26f1.up.railway.app/) · [Screenshots](https://drive.google.com/drive/folders/1DUbW852o2mZXffjQKoQWIugZsa1W1x2w?usp=sharing)**
 
 ---
 
